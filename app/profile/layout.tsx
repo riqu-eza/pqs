@@ -42,55 +42,39 @@ export default function ProfileLayout({
 
   return (
     <div className="min-h-screen bg-gray-100 p-4">
-      <div className="flex flex-col sm:flex-row justify-between items-center text-gray-700 bg-white p-4 rounded shadow mb-4">
-        <div className="text-lg font-semibold">{user?.name}</div>
-        <div className="text-gray-600">{today}</div>
-      </div>
-
-      <div className="flex flex-col sm:flex-row gap-4 mb-6">
-        <Link
-          href="/profile/history"
-          className={`px-4 py-2 rounded ${
-            pathname.includes("/profile/history")
-              ? "bg-black text-white"
-              : "bg-white text-black border"
-          }`}
-        >
-          History
-        </Link>
-        <Link
-          href="/profile/account"
-          className={`px-4 py-2 rounded ${
-            pathname.includes("/profile/account")
-              ? "bg-black text-white"
-              : "bg-white text-black border"
-          }`}
-        >
-          Account
-        </Link>
-        <Link
-          href="/profile/make-quotation"
-          className={`px-4 py-2 rounded ${
-            pathname.includes("/profile/make-quotation")
-              ? "bg-black text-white"
-              : "bg-white text-black border"
-          }`}
-        >
-          Make a Quotation
-        </Link>
-        <Link
-          href="/profile/drafts"
-          className={`px-4 py-2 rounded ${
-            pathname.includes("/profile/drafts")
-              ? "bg-black text-white"
-              : "bg-white text-black border"
-          }`}
-        >
-          Drafts
-        </Link>
-      </div>
-
-      <div className="bg-white p-4 text-black rounded shadow">{children}</div>
+    {/* Header: Name + Date */}
+    <div className="bg-white p-4 rounded-xl shadow flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between text-black mb-6">
+      <div className="text-xl font-bold">{user?.name}</div>
+      <div className="text-sm text-gray-500">{today}</div>
     </div>
+  
+    {/* Navigation Tabs */}
+    <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 mb-6">
+      {[
+        { href: "/profile/history", label: "History" },
+        { href: "/profile/account", label: "Account" },
+        { href: "/profile/make-quotation", label: "Make a Quotation" },
+        // { href: "/profile/drafts", label: "Drafts" },
+      ].map(({ href, label }) => (
+        <Link
+          key={href}
+          href={href}
+          className={`w-full text-center px-4 py-2 rounded-xl border transition-colors ${
+            pathname.includes(href)
+              ? "bg-black text-white"
+              : "bg-white text-black border-gray-300 hover:bg-gray-50"
+          }`}
+        >
+          {label}
+        </Link>
+      ))}
+    </div>
+  
+    {/* Content Area */}
+    <div className="bg-white p-4 rounded-xl shadow text-black">
+      {children}
+    </div>
+  </div>
+  
   );
 }

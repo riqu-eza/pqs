@@ -1,19 +1,25 @@
+export type ColorCodeInput = {
+  code: string;
+  percentage: number;
+};
+
 export type PaintSectionInput = {
-    area: number;
-    undercoatColor: string;
-    topcoatColor: string;
-    doubleArea?: boolean;
-  };
-  
-  export type ArtworkInput = {
-    name: string;
-    litres: number;
-  };
-  
-  export type QuotationInput = {
-    totalArea: number;
-    oilPaint: PaintSectionInput;
-    waterPaint: PaintSectionInput;
-    artwork: ArtworkInput;
-  };
-  
+  area: number;
+  undercoatColors: ColorCodeInput[];
+  topcoatColors: ColorCodeInput[];
+  doubleArea?: boolean;
+};
+
+export type ArtworkInput = {
+  name: string;
+  litres: number;
+  id: string;
+};
+
+export type QuotationInput = {
+  quotationName: string;
+  totalArea: number;
+  oilPaint: PaintSectionInput;
+  waterPaint: PaintSectionInput;
+  artworks: ArtworkInput[];
+};

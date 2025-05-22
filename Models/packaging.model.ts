@@ -1,8 +1,15 @@
-// models/Thinner.ts
-import mongoose from 'mongoose';
+// Models/packaging.model.ts
+import mongoose, { Document, Model, Schema } from 'mongoose';
 
-const packagingSchema = new mongoose.Schema({
+interface IPackaging extends Document {
+  litres: number;
+}
+
+const packagingSchema = new Schema<IPackaging>({
   litres: { type: Number, required: true },
 });
 
-export const Packaging = mongoose.models.Packaging || mongoose.model('Packaging', packagingSchema);
+const Packaging: Model<IPackaging> = 
+  mongoose.models.Packaging || mongoose.model<IPackaging>('Packaging', packagingSchema);
+
+export default Packaging;

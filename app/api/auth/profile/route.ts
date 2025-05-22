@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
   const hashedPassword = await hash(password, 12);
   const user = await User.create({ name, email, password: hashedPassword });
 
-  const token = createToken(user._id);
+  const token = createToken(user._id.toString());
 
   return NextResponse.json({ token, user: { email: user.email, name: user.name } });
 }

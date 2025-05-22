@@ -11,7 +11,7 @@ export type PaintSectionInput = {
 };
 
 export type ArtworkInput = {
-  colorCode(colorCode: any): unknown;
+  colorCode: string; // or appropriate type
   name: string;
   litres: number;
   id: string;

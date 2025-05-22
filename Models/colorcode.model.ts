@@ -1,9 +1,17 @@
-// models/Size.ts
-import mongoose from 'mongoose';
+// Models/colorcode.model.ts
+import mongoose, { Document, Model, Schema } from 'mongoose';
 
-const colorcodeSchema = new mongoose.Schema({
+interface IColorcode extends Document {
+  colorName: string;
+  colorCode: number;
+}
+
+const colorcodeSchema = new Schema<IColorcode>({
   colorName: { type: String, required: true },
   colorCode: { type: Number, required: true },
 });
 
-export const Colorcode = mongoose.models.Colorcode || mongoose.model( 'Colorcode', colorcodeSchema);
+const Colorcode: Model<IColorcode> = 
+  mongoose.models.Colorcode || mongoose.model<IColorcode>('Colorcode', colorcodeSchema);
+
+export default Colorcode;

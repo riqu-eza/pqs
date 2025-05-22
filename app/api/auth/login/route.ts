@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
   const isMatch = await compare(password, user.password);
   if (!isMatch) return NextResponse.json({ message: 'Invalid credentials' }, { status: 401 });
 
-  const token = createToken(user._id);
+  const token = createToken(user._id.toString());
 
   return NextResponse.json({ token, user: { email: user.email, name: user.name } });
 }

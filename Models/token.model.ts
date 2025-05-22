@@ -1,9 +1,22 @@
-import mongoose from 'mongoose';
+// models/Token.ts
+import mongoose, { Document, Model } from 'mongoose';
 
-const tokenSchema = new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  token: { type: String, required: true },
-  expires: { type: Date, required: true },
-}, { timestamps: true });
+export interface IToken extends Document {
+  userId: mongoose.Types.ObjectId;
+  token: string;
+  expires: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
 
-export const Token = mongoose.models.Token || mongoose.model('Token', tokenSchema);
+const tokenSchema = new mongoose.Schema<IToken>(
+  {
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    token: { type: String, required: true },
+    expires: { type: Date, required: true },
+  },
+  { timestamps: true }
+);
+
+export const Token: Model<IToken> =
+  mongoose.models.Token || mongoose.model<IToken>('Token', tokenSchema);

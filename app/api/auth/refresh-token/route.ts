@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { verifyRefreshToken, createToken } from '../../../../lib/auth' ;
+import { verifyRefreshToken, createToken } from '../../../../lib/auth';
 
 export async function POST(req: NextRequest) {
   const { refreshToken } = await req.json();
 
   try {
-    const userId = verifyRefreshToken(refreshToken);
+    const userId = verifyRefreshToken(refreshToken) as string;
     const newAccessToken = createToken(userId);
 
     return NextResponse.json({ token: newAccessToken });

@@ -1,8 +1,13 @@
 // models/Thinner.ts
-import mongoose from 'mongoose';
+import mongoose, { Document, Model } from 'mongoose';
 
-const thinnerSchema = new mongoose.Schema({
+export interface IThinner extends Document {
+  ratio: number;
+}
+
+const thinnerSchema = new mongoose.Schema<IThinner>({
   ratio: { type: Number, required: true },
 });
 
-export const Thinner = mongoose.models.Thinner || mongoose.model('Thinner', thinnerSchema);
+export const Thinner: Model<IThinner> =
+  mongoose.models.Thinner || mongoose.model<IThinner>('Thinner', thinnerSchema);

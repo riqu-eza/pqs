@@ -1,9 +1,17 @@
-import mongoose from 'mongoose';
+// Models/artwork.model.ts
+import mongoose, { Document, Model } from 'mongoose';
 
-const artworkColorSchema = new mongoose.Schema({
+interface IArtworkColor extends Document {
+  name: string;
+  colorCode: string[];
+}
+
+const artworkColorSchema = new mongoose.Schema<IArtworkColor>({
   name: { type: String, required: true },
   colorCode: { type: [String], required: true },
 });
 
-export const ArtworkColor =
-  mongoose.models.ArtworkColor || mongoose.model('ArtworkColor', artworkColorSchema);
+const ArtworkColor: Model<IArtworkColor> = 
+  mongoose.models.ArtworkColor || mongoose.model<IArtworkColor>('ArtworkColor', artworkColorSchema);
+
+export default ArtworkColor;

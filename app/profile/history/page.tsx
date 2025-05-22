@@ -1,4 +1,74 @@
 "use client";
+"use client";
+
+
+
+interface Packaging {
+  [size: string]: number;
+}
+
+interface ColorBreakdown {
+  colorCode: string;
+  colorName: string;
+  litres: number;
+  packaging: Packaging;
+}
+
+interface ArtworkColor {
+  colorCode: string;
+  litres: number;
+  packaging: Packaging;
+}
+
+interface Artwork {
+  id?: string;
+  name: string;
+  colors: ArtworkColor[];
+}
+
+interface OilSummary {
+  area: number;
+  undercoatLitres: number;
+  undercoatBreakdown: ColorBreakdown[];
+  topcoatLitres: number;
+  topcoatBreakdown: ColorBreakdown[];
+  thinner: {
+    litres: number;
+    packaging: Packaging;
+  };
+}
+
+interface WaterSummary {
+  area: number;
+  undercoatLitres: number;
+  undercoatBreakdown: ColorBreakdown[];
+  topcoatLitres: number;
+  topcoatBreakdown: ColorBreakdown[];
+}
+
+interface Summary {
+  totalArea?: number;
+  oil?: OilSummary;
+  water?: WaterSummary;
+  artworks?: Artwork[];
+}
+
+interface FormData {
+  quotationName: string;
+  oilPaint?: {
+    doubleArea: boolean;
+  };
+  // Add other form data fields here if needed
+}
+
+interface Quotation {
+  _id: string;
+  createdAt: string;
+  formData: FormData;
+  summary?: Summary;
+}
+
+
 
 import { useEffect, useState } from "react";
 import { FiSearch, FiChevronDown, FiChevronUp, FiX, FiDownload, FiMail } from "react-icons/fi";
@@ -55,7 +125,7 @@ const [emailLoading, setEmailLoading] = useState<Record<string, boolean>>({});
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ quotationId: quotation_idtttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt }),
+        body: JSON.stringify({ quotationId: quotation_id}),
       });
       
 

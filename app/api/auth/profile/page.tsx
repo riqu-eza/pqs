@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { hash } from 'bcryptjs';
-import { connectDB } from '@/lib/db';
-import { User } from '@/models/user.model';
-import { createToken } from '@/lib/auth';
+import { connectDB } from '../../../../lib/mongodb';
+import { User } from '../../../../Models/user.model';
+import { createToken } from '../../../../lib/auth';
 
 export async function POST(req: NextRequest) {
   await connectDB();

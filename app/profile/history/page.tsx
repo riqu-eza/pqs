@@ -55,7 +55,7 @@ const [emailLoading, setEmailLoading] = useState<Record<string, boolean>>({});
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ quotationId: quotation_id }),
+        body: JSON.stringify({ quotationId: quotation_idtttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt }),
       });
       
 

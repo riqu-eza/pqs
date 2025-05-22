@@ -16,6 +16,11 @@ export type ArtworkOption = {
   name: string;
   colorCode: string;
 };
+ 
+export type thinningOption = {
+  _id: string;
+  ratio: number;
+};
 
 export async function fetchSizeCoverage(): Promise<Record<"oil" | "water", number>> {
   const res = await fetch("/api/admin/size");
@@ -26,6 +31,21 @@ export async function fetchSizeCoverage(): Promise<Record<"oil" | "water", numbe
     oil: data.find((item) => item.type === "oil")?.area || 0,
     water: data.find((item) => item.type === "water")?.area || 0,
   };
+}
+// ADD: Fetch thinner ratio per 4 litres
+export async function fetchThinnerRatio(): Promise<number> {
+  const res = await fetch("/api/admin/thinner");
+  if (!res.ok) throw new Error("Failed to fetch thinner ratio");
+  const data: thinningOption[] = await res.json();
+  console.log("thinner",data);
+  return data[0]?.ratio || 0;
+ // assume the first one is active
+}
+
+// ADD: Thinner calculator
+function calculateThinnerNeeded(totalLitres: number, ratioPer4L: number): number {
+  if (!ratioPer4L) return 0;
+  return Math.ceil((totalLitres / 4) * ratioPer4L);
 }
 
 export async function fetchPackagingOptions(): Promise<number[]> {
@@ -90,15 +110,16 @@ function distributeLitresByColor(
 export async function getQuotationSummary(input: QuotationInput) {
   const { oilPaint, waterPaint, artworks, totalArea } = input;
 
-  const [coverage, packagingSizes, artworkOptions] = await Promise.all([
+  const [coverage, packagingSizes, artworkOptions, thinnerRatio] = await Promise.all([
     fetchSizeCoverage(),
     fetchPackagingOptions(),
     fetchArtworkOptions(),
+    fetchThinnerRatio(),
   ]);
 
-  // OIL PAINT: Undercoat = 1 coat, Topcoat = 2 coats (always)
+  // OIL PAINT: Undercoat (1 coat), Topcoat (2 coats)
   const oilUndercoatLitres = calculateLitres(oilPaint.area, coverage.oil, 1);
-  const oilTopcoatLitres = calculateLitres(oilPaint.area, coverage.oil, 2); // always double
+  const oilTopcoatLitres = calculateLitres(oilPaint.area, coverage.oil, 2);
 
   const oilUndercoatBreakdown = distributeLitresByColor(
     oilUndercoatLitres,
@@ -111,7 +132,10 @@ export async function getQuotationSummary(input: QuotationInput) {
     packagingSizes
   );
 
-  // WATER PAINT: Undercoat = 1 coat, Topcoat = 2 coats (always)
+  const totalOilLitres = oilUndercoatLitres + oilTopcoatLitres;
+  const oilThinnerLitres = calculateThinnerNeeded(totalOilLitres, thinnerRatio);
+
+  // WATER PAINT: Same as oil
   const waterUndercoatLitres = calculateLitres(waterPaint.area, coverage.water, 1);
   const waterTopcoatLitres = calculateLitres(waterPaint.area, coverage.water, 2);
 
@@ -126,20 +150,35 @@ export async function getQuotationSummary(input: QuotationInput) {
     packagingSizes
   );
 
-  // ARTWORKS: Use artworkOptions to get proper name & code
+  // ARTWORK: multiple color codes, 1 litre each
   const artworksSummary = artworks.map((art) => {
     const matched = artworkOptions.find(
       (a) => a.name.toLowerCase() === art.name.toLowerCase()
     );
-    const litres = art.litres;
+  
+    const colorCodes = matched?.colorCode
+      ? Array.isArray(matched.colorCode)
+        ? matched.colorCode
+        : [matched.colorCode]
+      : Array.isArray(art.colorCode)
+        ? art.colorCode
+        : [art.colorCode];
+  
+    const colors = colorCodes.map((code) => ({
+      colorCode: code,
+      litres: 1,
+      packaging: calculatePackaging(1, packagingSizes),
+    }));
+  
     return {
       id: matched?._id || art.id,
       name: art.name,
-      colorCode: matched?.colorCode ?? "N/A",
-      litres,
-      packaging: calculatePackaging(litres, packagingSizes),
+      colors,
     };
   });
+  
+  
+  console.log("totalOilLitres:", totalOilLitres, "thinnerRatio:", thinnerRatio);
 
   return {
     totalArea,
@@ -149,6 +188,10 @@ export async function getQuotationSummary(input: QuotationInput) {
       topcoatLitres: oilTopcoatLitres,
       undercoatBreakdown: oilUndercoatBreakdown,
       topcoatBreakdown: oilTopcoatBreakdown,
+      thinner: {
+        litres: oilThinnerLitres,
+        packaging: calculatePackaging(oilThinnerLitres, packagingSizes),
+      },
     },
     water: {
       area: waterPaint.area,
@@ -160,4 +203,5 @@ export async function getQuotationSummary(input: QuotationInput) {
     artworks: artworksSummary,
   };
 }
+
 

@@ -27,7 +27,10 @@ export default function PaintQuotationForm() {
   const addArtwork = () => {
     setFormData((prev) => ({
       ...prev,
-      artworks: [...prev.artworks, { name: "", litres: 0, id: "" }],
+      artworks: [
+        ...prev.artworks,
+        { name: "", litres: 0, id: "", colorCode: "" },
+      ],
     }));
   };
 
@@ -64,6 +67,7 @@ export default function PaintQuotationForm() {
       if (!res.ok) throw new Error("Failed to save quotation");
 
       const data = await res.json();
+      console.log(data);
       setQuotationSummary({ ...summary, _id: data.quotation._id });
       setDownloadReady(true);
     } catch (err) {
@@ -99,6 +103,35 @@ export default function PaintQuotationForm() {
       setEmailLoading(false);
     }
   };
+
+  const handlePreviewAndDownloadPDF = async () => {
+    if (!quotationSummary?._id) return;
+  
+    try {
+      const res = await fetch(`/api/quotation/pdf?id=${quotationSummary._id}`);
+      if (!res.ok) throw new Error("Failed to fetch PDF");
+  
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+  
+      // Preview in new tab
+      window.open(url, "_blank");
+  
+      // Auto-download
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `quotation-${quotationSummary._id}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+  
+      // Optional: Revoke the blob URL after short delay (to allow both actions)
+      setTimeout(() => window.URL.revokeObjectURL(url), 1000);
+    } catch (err) {
+      console.error("PDF fetch error:", err);
+    }
+  };
+  
 
   return (
     <div className="min-h-screen bg-gray-100 p-4">
@@ -181,189 +214,158 @@ export default function PaintQuotationForm() {
         </button>
 
         {/* Quotation Summary */}
-        {quotationSummary && (
-          <div className="mt-6 p-4 bg-white border rounded-xl shadow shadow-gray-300 text-sm sm:text-base">
-            <h3 className="text-lg font-semibold mb-4 text-black">
-              Quotation Summary
-            </h3>
-
-            <div className="space-y-4 text-gray-800">
-              <p>
-                <strong>Total Area:</strong> {quotationSummary.totalArea} m²
-              </p>
-
-              {/* Oil Paint Details */}
-              <div>
-                <strong className="text-black">Oil Paint:</strong>
-                <ul className="ml-4 list-disc space-y-1">
-                  <li>Area: {quotationSummary.oil.area} m²</li>
-                  {/* <li>
-                    Double Area:{" "}
-                    {quotationSummary.oil.doubleArea ? "Yes" : "No"}
-                  </li>
-                  <li>
-                    Undercoat Color: {quotationSummary.oil.undercoatColor}
-                  </li>
-                  <li>Topcoat Color: {quotationSummary.oil.topcoatColor}</li> */}
-                  <li>
-                    Undercoat Litres: {quotationSummary.oil.undercoatLitres}
-                  </li>
-                  <li>Topcoat Litres: {quotationSummary.oil.topcoatLitres}</li>
-
-                  {quotationSummary.oil.undercoatBreakdown?.length > 0 && (
-                    <li>
-                      Undercoat Packaging:
-                      <ul className="ml-4 list-disc">
-                        {quotationSummary.oil.undercoatBreakdown.map(
-                          (color) => (
-                            <li key={color.colorCode}>
-                              {color.colorCode} :{" "}
-                              {Object.entries(color.packaging)
-                                .map(([size, qty]) => `${qty} x ${size}L`)
-                                .join(", ")}
-                            </li>
-                          )
-                        )}
-                      </ul>
-                    </li>
-                  )}
-
-                  {quotationSummary.oil.topcoatBreakdown?.length > 0 && (
-                    <li>
-                      Topcoat Packaging:
-                      <ul className="ml-4 list-disc">
-                        {quotationSummary.oil.topcoatBreakdown.map((color) => (
-                          <li key={color.colorCode}>
-                            {color.colorCode} :{" "}
-                            {Object.entries(color.packaging)
-                              .map(([size, qty]) => `${qty} x ${size}L`)
-                              .join(", ")}
-                          </li>
-                        ))}
-                      </ul>
-                    </li>
-                  )}
-                </ul>
-              </div>
-
-              {/* Water Paint Details */}
-              <div>
-                <strong className="text-black">Water Paint:</strong>
-                <ul className="ml-4 list-disc space-y-1">
-                  <li>Area: {quotationSummary.water.area} m²</li>
-                  {/* <li>
-                    Undercoat Color: {quotationSummary.water.undercoatColor}
-                  </li>
-                  <li>Topcoat Color: {quotationSummary.water.topcoatColor}</li> */}
-                  <li>
-                    Undercoat Litres: {quotationSummary.water.undercoatLitres}
-                  </li>
-                  <li>
-                    Topcoat Litres: {quotationSummary.water.topcoatLitres}
-                  </li>
-
-                  {quotationSummary.water.undercoatBreakdown?.length > 0 && (
-                    <li>
-                      Undercoat Packaging:
-                      <ul className="ml-4 list-disc">
-                        {quotationSummary.water.undercoatBreakdown.map(
-                          (color) => (
-                            <li key={color.colorCode}>
-                              {color.colorCode} :{" "}
-                              {Object.entries(color.packaging)
-                                .map(([size, qty]) => `${qty} x ${size}L`)
-                                .join(", ")}
-                            </li>
-                          )
-                        )}
-                      </ul>
-                    </li>
-                  )}
-
-                  {quotationSummary.water.topcoatBreakdown?.length > 0 && (
-                    <li>
-                      Topcoat Packaging:
-                      <ul className="ml-4 list-disc">
-                        {quotationSummary.water.topcoatBreakdown.map(
-                          (color) => (
-                            <li key={color.colorCode}>
-                              {color.colorCode} :{" "}
-                              {Object.entries(color.packaging)
-                                .map(([size, qty]) => `${qty} x ${size}L`)
-                                .join(", ")}
-                            </li>
-                          )
-                        )}
-                      </ul>
-                    </li>
-                  )}
-                </ul>
-              </div>
-
-              {/* Artwork Details */}
-              {quotationSummary.artworks?.length > 0 && (
-                <div>
-                  <strong className="text-black">Artworks:</strong>
-                  <ul className="ml-4 list-disc space-y-2">
-                    {quotationSummary.artworks.map((art) => (
-                      <li key={art.id}>
-                        <div>
-                          <strong>Name:</strong> {art.name}
-                        </div>
-                        <div>
-                          <strong>Litres:</strong> {art.litres}
-                        </div>
-                        <div>
-                          <strong>Color Code:</strong> {art.colorCode}
-                        </div>
-                        <div>
-                          <strong>Packaging:</strong>{" "}
-                          {Object.entries(art.packaging)
-                            .map(([size, qty]) => `${qty} x ${size}L`)
-                            .join(", ")}
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-
-            {/* Buttons for Download & Email */}
-            {downloadReady && (
-              <div className="flex flex-col sm:flex-row gap-4 mt-6">
-                <button
-                  className="w-full sm:w-auto bg-black text-white px-4 py-2 rounded-md"
-                  onClick={() =>
-                    window.open(
-                      `/api/quotation/pdf?id=${quotationSummary._id}`,
-                      "_blank"
-                    )
-                  }
-                >
-                  Download PDF
-                </button>
-
-                <button
-                  className={`w-full sm:w-auto px-4 py-2 rounded-md text-white ${
-                    emailLoading ? "bg-gray-400" : "bg-gray-800"
-                  }`}
-                  onClick={handleSendEmail}
-                  disabled={emailLoading}
-                >
-                  {emailLoading ? "Sending..." : "Send to Email"}
-                </button>
-              </div>
-            )}
-
-            {emailSent && (
-              <p className="text-green-700 mt-2">
-                Quotation sent to your email.
-              </p>
-            )}
-          </div>
-        )}
       </div>
+      {quotationSummary && (
+  <div className="mt-6 p-4 bg-white border rounded-xl shadow shadow-gray-300 text-sm sm:text-base">
+    <h3 className="text-lg font-semibold mb-4 text-black">
+      Quotation Summary
+    </h3>
+
+    <p>
+      <strong>Total Area:</strong> {quotationSummary.totalArea} m²
+    </p>
+
+    {/* Oil Paint Section */}
+    <div className="mt-4">
+      <h4 className="font-semibold text-blue-700">Oil Paint</h4>
+      <p>Area: {quotationSummary.oil.area} m²</p>
+
+      {/* Undercoat */}
+      <h5 className="mt-2 font-medium">Undercoat</h5>
+      {quotationSummary.oil.undercoatBreakdown.map((item: any, idx: number) => (
+        <div key={idx} className="ml-4 mb-2">
+          <p>Color: {item.colorName} ({item.colorCode})</p>
+          <p>Litres: {item.litres}</p>
+          <p>
+            Packaging:{" "}
+            {Object.entries(item.packaging)
+              .map(([size, qty]) => `${qty} x ${size}L`)
+              .join(", ")}
+          </p>
+        </div>
+      ))}
+
+      {/* Topcoat */}
+      <h5 className="mt-2 font-medium">Topcoat</h5>
+      {quotationSummary.oil.topcoatBreakdown.map((item: any, idx: number) => (
+        <div key={idx} className="ml-4 mb-2">
+          <p>Color: {item.colorName} ({item.colorCode})</p>
+          <p>Litres: {item.litres}</p>
+          <p>
+            Packaging:{" "}
+            {Object.entries(item.packaging)
+              .map(([size, qty]) => `${qty} x ${size}L`)
+              .join(", ")}
+          </p>
+        </div>
+      ))}
+
+      {/* Thinner */}
+      <h5 className="mt-2 font-medium">Thinner</h5>
+      <div className="ml-4 mb-2">
+        <p>Litres: {quotationSummary.oil.thinner.litres}</p>
+        <p>
+          Packaging:{" "}
+          {Object.entries(quotationSummary.oil.thinner.packaging)
+            .map(([size, qty]) => `${qty} x ${size}L`)
+            .join(", ")}
+        </p>
+      </div>
+    </div>
+
+    {/* Water Paint Section */}
+    <div className="mt-4">
+      <h4 className="font-semibold text-blue-700">Water Paint</h4>
+      <p>Area: {quotationSummary.water.area} m²</p>
+
+      {/* Undercoat */}
+      <h5 className="mt-2 font-medium">Undercoat</h5>
+      {quotationSummary.water.undercoatBreakdown.map((item: any, idx: number) => (
+        <div key={idx} className="ml-4 mb-2">
+          <p>Color: {item.colorName} ({item.colorCode})</p>
+          <p>Litres: {item.litres}</p>
+          <p>
+            Packaging:{" "}
+            {Object.entries(item.packaging)
+              .map(([size, qty]) => `${qty} x ${size}L`)
+              .join(", ")}
+          </p>
+        </div>
+      ))}
+
+      {/* Topcoat */}
+      <h5 className="mt-2 font-medium">Topcoat</h5>
+      {quotationSummary.water.topcoatBreakdown.map((item: any, idx: number) => (
+        <div key={idx} className="ml-4 mb-2">
+          <p>Color: {item.colorName} ({item.colorCode})</p>
+          <p>Litres: {item.litres}</p>
+          <p>
+            Packaging:{" "}
+            {Object.entries(item.packaging)
+              .map(([size, qty]) => `${qty} x ${size}L`)
+              .join(", ")}
+          </p>
+        </div>
+      ))}
+    </div>
+
+    {/* Artwork Section */}
+    <div className="mt-4">
+      <h4 className="font-semibold text-blue-700">Artworks</h4>
+      {quotationSummary.artworks.map((art: any, idx: number) => (
+        <div key={idx} className="ml-4 mb-4">
+          <p className="font-medium text-black">Name: {art.name}</p>
+          {art.colors.map((color: any, colorIdx: number) => (
+            <div key={colorIdx} className="ml-4 mb-2">
+              <p>Color Code: {color.colorCode}</p>
+              <p>Litres: {color.litres}</p>
+              <p>
+                Packaging:{" "}
+                {Object.entries(color.packaging)
+                  .map(([size, qty]) => `${qty} x ${size}L`)
+                  .join(", ")}
+              </p>
+            </div>
+          ))}
+        </div>
+      ))}
+    </div>
+
+    {/* Email Button */}
+    <button
+  onClick={handleSendEmail}
+  disabled={emailLoading || emailSent}
+  className={`mt-4 w-full py-2 rounded-lg font-semibold transition duration-200 ${
+    emailSent ? "bg-green-600" : "bg-blue-600 hover:bg-blue-700"
+  } text-white`}
+>
+  {emailLoading
+    ? "Sending..."
+    : emailSent
+    ? "Email Sent!"
+    : "Send Quotation via Email"}
+</button>
+
+<button
+  onClick={handlePreviewAndDownloadPDF}
+  className="mt-3 w-full py-2 rounded-lg bg-purple-600 hover:bg-purple-700 text-white font-semibold transition duration-200 flex items-center justify-center gap-2"
+>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    className="h-5 w-5"
+    viewBox="0 0 20 20"
+    fill="currentColor"
+  >
+    <path d="M3 4a1 1 0 011-1h4v2H5v10h10V5h-3V3h4a1 1 0 011 1v12a1 1 0 01-1 1H4a1 1 0 01-1-1V4z" />
+    <path d="M9 12V7h2v5h2l-3 3-3-3h2z" />
+  </svg>
+  Preview & Download PDF
+</button>
+
+
+  </div>
+)}
+
     </div>
   );
 }

@@ -21,7 +21,7 @@ export default function ArtworkSection({ data, onChange }: Props) {
         />
       </label>
 
-      <label className="block">
+      {/* <label className="block">
         Litres of Paint:
         <input
           type="number"
@@ -29,7 +29,7 @@ export default function ArtworkSection({ data, onChange }: Props) {
           onChange={(e) => onChange({ ...data, litres: Number(e.target.value) })}
           className="border p-1 rounded ml-2"
         />
-      </label>
+      </label> */}
     </div>
   );
 }

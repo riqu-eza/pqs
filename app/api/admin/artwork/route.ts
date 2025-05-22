@@ -20,15 +20,18 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
+    console.log('Received body to save:', body); // Log received data
 
     const created = await ArtworkColor.create(body);
+    console.log('Created document:', created); // Log created document
 
     return NextResponse.json(created);
   } catch (err) {
-    console.error('CREATE ERROR:', err); // ← Add this
+    console.error('CREATE ERROR:', err);
     return NextResponse.json({ error: 'Failed to create' }, { status: 400 });
   }
 }
+
 
 
 // PUT to update by ID

@@ -20,17 +20,24 @@ export default function ColorCodeSelect({ label, value, onChange }: Props) {
       try {
         const res = await fetch("/api/admin/colorcode");
         const data = await res.json();
-        setColors(data);
+  
+        // Make sure it's an array
+        if (Array.isArray(data)) {
+          setColors(data);
+        } else {
+          console.error("Expected an array but got:", data);
+          setColors([]); // fallback
+        }
       } catch (error) {
         console.error("Failed to load color codes", error);
       } finally {
         setLoading(false);
       }
     };
-
+  
     fetchColors();
   }, []);
-
+  
   return (
     <label className="block">
       {label}

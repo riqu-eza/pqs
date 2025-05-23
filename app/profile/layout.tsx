@@ -38,43 +38,47 @@ export default function ProfileLayout({
 
   const today = new Date().toLocaleDateString();
 
-  if (loading) return <p className="p-6">Loading...</p>;
+  if (loading)
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
 
   return (
     <div className="min-h-screen bg-gray-100 p-4">
-    {/* Header: Name + Date */}
-    <div className="bg-white p-4 rounded-xl shadow flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between text-black mb-6">
-      <div className="text-xl font-bold">{user?.name}</div>
-      <div className="text-sm text-gray-500">{today}</div>
+      {/* Header: Name + Date */}
+      <div className="bg-white p-4 rounded-xl shadow flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between text-black mb-6">
+        <div className="text-xl font-bold">{user?.name}</div>
+        <div className="text-sm text-gray-500">{today}</div>
+      </div>
+
+      {/* Navigation Tabs */}
+      <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 mb-6">
+        {[
+          { href: "/profile/history", label: "History" },
+          { href: "/profile/account", label: "Account" },
+          { href: "/profile/make-quotation", label: "Make a Quotation" },
+          // { href: "/profile/drafts", label: "Drafts" },
+        ].map(({ href, label }) => (
+          <Link
+            key={href}
+            href={href}
+            className={`w-full text-center px-4 py-2 rounded-xl border transition-colors ${
+              pathname.includes(href)
+                ? "bg-black text-white"
+                : "bg-white text-black border-gray-300 hover:bg-gray-50"
+            }`}
+          >
+            {label}
+          </Link>
+        ))}
+      </div>
+
+      {/* Content Area */}
+      <div className="bg-white p-4 rounded-xl shadow text-black">
+        {children}
+      </div>
     </div>
-  
-    {/* Navigation Tabs */}
-    <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 mb-6">
-      {[
-        { href: "/profile/history", label: "History" },
-        { href: "/profile/account", label: "Account" },
-        { href: "/profile/make-quotation", label: "Make a Quotation" },
-        // { href: "/profile/drafts", label: "Drafts" },
-      ].map(({ href, label }) => (
-        <Link
-          key={href}
-          href={href}
-          className={`w-full text-center px-4 py-2 rounded-xl border transition-colors ${
-            pathname.includes(href)
-              ? "bg-black text-white"
-              : "bg-white text-black border-gray-300 hover:bg-gray-50"
-          }`}
-        >
-          {label}
-        </Link>
-      ))}
-    </div>
-  
-    {/* Content Area */}
-    <div className="bg-white p-4 rounded-xl shadow text-black">
-      {children}
-    </div>
-  </div>
-  
   );
 }

@@ -98,15 +98,15 @@ export async function generatePDFBuffer(
   });
 
   if (summary.oil.thinner?.litres) {
-    drawRow("Thinner Needed", `${summary.oil.thinner.litres} L`);
+    drawRow("Solvent Needed", `${summary.oil.thinner.litres}`);
     drawRow(
-      "Thinner Packaging",
+      "Solvent Packaging",
       formatPackaging(summary.oil.thinner.packaging)
     );
   }
 
   // Water Paint
-  drawSectionTitle("Water Paint");
+  drawSectionTitle("Viln matt Paint");
   drawRow("Area", `${summary.water.area} m²`);
   drawRow("Undercoat Total Litres", `${summary.water.undercoatLitres}`);
   summary.water.undercoatBreakdown.forEach((item: any) => {

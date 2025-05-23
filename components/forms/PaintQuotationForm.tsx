@@ -160,7 +160,7 @@ export default function PaintQuotationForm() {
 
         {/* Oil Paint Section */}
         <PaintSection
-          title="Oil Paint"
+          title="Gloss Paint"
           data={formData.oilPaint}
           onChange={(oilPaint) => setFormData({ ...formData, oilPaint })}
           allowDouble
@@ -168,7 +168,7 @@ export default function PaintQuotationForm() {
 
         {/* Water Paint Section */}
         <PaintSection
-          title="Water Paint"
+          title="Viln matt Paint"
           data={formData.waterPaint}
           onChange={(waterPaint) => setFormData({ ...formData, waterPaint })}
         />
@@ -224,7 +224,7 @@ export default function PaintQuotationForm() {
           </p>
           {/* Oil Paint Section */}
           <div className="mt-4">
-            <h4 className="font-semibold text-blue-700">Oil Paint</h4>
+            <h4 className="font-semibold text-blue-700">Gloss Paint</h4>
             <p>Area: {quotationSummary.oil.area} m²</p>
 
             {/* Undercoat */}
@@ -266,7 +266,7 @@ export default function PaintQuotationForm() {
             )}
 
             {/* Thinner */}
-            <h5 className="mt-2 font-medium">Thinner</h5>
+            <h5 className="mt-2 font-medium">Solvents</h5>
             <div className="ml-4 mb-2">
               <p>Litres: {quotationSummary.oil.thinner.litres}</p>
               <p>
@@ -279,9 +279,9 @@ export default function PaintQuotationForm() {
           </div>
           {/* Water Paint Section */}
           <div className="mt-4">
-            <h4 className="font-semibold text-blue-700">Water Paint</h4>
+            <h4 className="font-semibold text-blue-700">Viln matt Paint</h4>
             <p>Area: {quotationSummary.water.area} m²</p>
-
+            
             {/* Undercoat */}
             <h5 className="mt-2 font-medium">Undercoat</h5>
             {quotationSummary.water.undercoatBreakdown.map(
@@ -375,47 +375,7 @@ export default function PaintQuotationForm() {
             </svg>
             {!downloadReady ? "Generating PDF..." : "Preview & Download PDF"}
           </button>
-          vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-          <button
-            onClick={handlePreviewAndDownloadPDF}
-            disabled={!downloadReady || loading}
-            className={`mt-3 w-full py-2 rounded-lg ${
-              !downloadReady
-                ? "bg-gray-400"
-                : "bg-purple-600 hover:bg-purple-700"
-            } text-white font-semibold transition duration-200 flex items-center justify-center gap-2`}
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path d="M3 4a1 1 0 011-1h4v2H5v10h10V5h-3V3h4a1 1 0 011 1v12a1 1 0 01-1 1H4a1 1 0 01-1-1V4z" />
-              <path d="M9 12V7h2v5h2l-3 3-3-3h2z" />
-            </svg>
-            {!downloadReady ? "Generating PDF..." : "Preview & Download PDF"}
-          </button>
-          <button
-            onClick={handlePreviewAndDownloadPDF}
-            disabled={!downloadReady || loading}
-            className={`mt-3 w-full py-2 rounded-lg ${
-              !downloadReady
-                ? "bg-gray-400"
-                : "bg-purple-600 hover:bg-purple-700"
-            } text-white font-semibold transition duration-200 flex items-center justify-center gap-2`}
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path d="M3 4a1 1 0 011-1h4v2H5v10h10V5h-3V3h4a1 1 0 011 1v12a1 1 0 01-1 1H4a1 1 0 01-1-1V4z" />
-              <path d="M9 12V7h2v5h2l-3 3-3-3h2z" />
-            </svg>
-            {!downloadReady ? "Generating PDF..." : "Preview & Download PDF"}
-          </button>
+          
         </div>
       )}
     </div>

@@ -240,7 +240,7 @@ const [emailLoading, setEmailLoading] = useState<Record<string, boolean>>({});
           
           {summary?.oil && (
             <div>
-              <h3 className="font-semibold text-gray-700 mb-2">Oil Paint</h3>
+              <h3 className="font-semibold text-gray-700 mb-2">Gloss Paint</h3>
               <div className="space-y-2 text-sm">
                 <div><span className="font-medium">Area:</span> {summary.oil.area} m²</div>
                 <div><span className="font-medium">Double Area:</span> {formData.oilPaint?.doubleArea ? "Yes" : "No"}</div>
@@ -256,7 +256,7 @@ const [emailLoading, setEmailLoading] = useState<Record<string, boolean>>({});
                 </div>
                 
                 <div>
-                  <div className="font-medium">Thinner: {summary.oil.thinner.litres}L</div>
+                  <div className="font-medium">Solvents: {summary.oil.thinner.litres}L</div>
                   <div>{renderPackaging(summary.oil.thinner.packaging)}</div>
                 </div>
               </div>
@@ -265,7 +265,7 @@ const [emailLoading, setEmailLoading] = useState<Record<string, boolean>>({});
           
           {summary?.water && (
             <div>
-              <h3 className="font-semibold text-gray-700 mb-2">Water Paint</h3>
+              <h3 className="font-semibold text-gray-700 mb-2">Viln matt Paint</h3>
               <div className="space-y-2 text-sm">
                 <div><span className="font-medium">Area:</span> {summary.water.area} m²</div>
                 

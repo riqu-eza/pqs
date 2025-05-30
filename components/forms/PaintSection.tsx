@@ -92,7 +92,7 @@ Props) {
                 const newColors = [...data.topcoatColors];
                 newColors[idx] = {
                   ...newColors[idx],
-                  code,
+                  code: String(code),
                   name,
                 };
                 onChange({ ...data, topcoatColors: newColors });

@@ -2,7 +2,6 @@ import { NextRequest } from 'next/server';
 import { connectDB } from '../../../../lib/mongodb';
 import quotationModel from '../../../../Models/quotation.model';
 import { generatePDFBuffer } from '../../../../lib/pdfGenerator';
-import { User } from '../../../../Models/user.model';
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
@@ -19,9 +18,10 @@ export async function GET(req: NextRequest) {
     if (!quotation) {
       return new Response('Quotation not found', { status: 404 });
     }
-    const owner = await User.findById(quotation.owner).lean();
-    const pdfBuffer = await generatePDFBuffer(quotation, owner?.name);
-    return new Response(pdfBuffer, {
+    const pdfBuffer = await generatePDFBuffer(quotation);
+    // Convert Node.js Buffer to Uint8Array for Response
+    const pdfUint8Array = new Uint8Array(pdfBuffer);
+    return new Response(pdfUint8Array, {
       headers: {
         'Content-Type': 'application/pdf',
         'Content-Disposition': `attachment; filename=quotation-${id}.pdf`,

@@ -149,7 +149,7 @@ const ArtworkStep = ({
       ...formData,
       artworks: [
         ...formData.artworks,
-        { name: "", litres: 0, id: "", colorCode: "" },
+        { name: "", id: "", colors: [] },
       ],
     });
   };

@@ -7,22 +7,30 @@ import { useState } from 'react';
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const handleLogin = async () => {
-    const res = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
-    });
 
-    const data = await res.json();
-    if (res.ok) {
-      localStorage.setItem('token', data.token); // <--- this is essential
-      alert('Login successful');
-      router.push('/profile');
-    }
-     else {
-      alert(data.message || 'Login failed');
+  const handleLogin = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        localStorage.setItem('token', data.token);
+        alert('Login successful');
+        router.push('/profile');
+      } else {
+        alert(data.message || 'Login failed');
+      }
+    } catch {
+      alert('Something went wrong.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -51,9 +59,14 @@ export default function LoginPage() {
 
         <button
           onClick={handleLogin}
-          className="w-full bg-gray-900 hover:bg-gray-800 text-white py-3 rounded-lg transition"
+          disabled={loading}
+          className={`w-full py-3 rounded-lg transition ${
+            loading
+              ? 'bg-gray-400 cursor-not-allowed'
+              : 'bg-gray-900 hover:bg-gray-800 text-white'
+          }`}
         >
-          Login
+          {loading ? 'Logging in...' : 'Login'}
         </button>
 
         <p className="text-sm mt-4 text-center text-gray-600">

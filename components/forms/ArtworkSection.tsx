@@ -59,7 +59,7 @@ export default function ArtworkSection({ data, onChange }: Props) {
                 value={color.colorCode}
                 onChange={(code, name) => {
                   updateColor(idx, {
-                    colorCode: code,
+                    colorCode: String(code),
                     colorName: name
                   });
                 }}
@@ -69,7 +69,7 @@ export default function ArtworkSection({ data, onChange }: Props) {
               type="number"
               placeholder="Litres"
               value={color.litres}
-              onChange={(e) => updateColor(idx, { litres: e.target.value })}
+              onChange={(e) => updateColor(idx, { litres: Number(e.target.value) })}
               className="border p-2 rounded w-1/4"
               min="0"
               step="0.01"

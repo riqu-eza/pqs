@@ -103,6 +103,15 @@ function distributeLitresByColor(
     };
   });
 }
+function addColorNames(breakdown, colors) {
+  return breakdown.map((item) => {
+    const match = colors.find((c) => c.code === item.colorCode);
+    return {
+      ...item,
+      colorName: match?.name || item.colorCode,
+    };
+  });
+}
 
 /**
  * Final quotation summary combining area, colors, litres, and packaging.
@@ -117,16 +126,36 @@ export async function getQuotationSummary(input: QuotationInput) {
     fetchThinnerRatio(),
   ]);
 
-  // OIL PAINT: Undercoat (1 coat), Topcoat (2 coats)
+  // Helper packaging filters
+  const undercoatPackaging = packagingSizes.filter((size) => size === 1 || size === 4);
+  const thinnerPackaging = packagingSizes.filter((size) => size === 5 || size === 20);
+
+  const getBreakdownWithNames = (
+    litres: number,
+    colorInput: { code: string; name: string; percentage: number }[],
+    allowedPackaging: number[]
+  ) => {
+    const breakdown = distributeLitresByColor(litres, colorInput, allowedPackaging);
+    return breakdown.map((b) => {
+      const color = colorInput.find((c) => c.code === b.colorCode);
+      return {
+        ...b,
+        colorName: color?.name || b.colorCode,
+      };
+    });
+  };
+
+  // OIL PAINT
   const oilUndercoatLitres = calculateLitres(oilPaint.area, coverage.oil, 1);
   const oilTopcoatLitres = calculateLitres(oilPaint.area, coverage.oil, 2);
 
-  const oilUndercoatBreakdown = distributeLitresByColor(
+  const oilUndercoatBreakdown = getBreakdownWithNames(
     oilUndercoatLitres,
     oilPaint.undercoatColors,
-    packagingSizes
+    undercoatPackaging
   );
-  const oilTopcoatBreakdown = distributeLitresByColor(
+
+  const oilTopcoatBreakdown = getBreakdownWithNames(
     oilTopcoatLitres,
     oilPaint.topcoatColors,
     packagingSizes
@@ -135,50 +164,51 @@ export async function getQuotationSummary(input: QuotationInput) {
   const totalOilLitres = oilUndercoatLitres + oilTopcoatLitres;
   const oilThinnerLitres = calculateThinnerNeeded(totalOilLitres, thinnerRatio);
 
-  // WATER PAINT: Same as oil
+  // WATER PAINT
   const waterUndercoatLitres = calculateLitres(waterPaint.area, coverage.water, 1);
   const waterTopcoatLitres = calculateLitres(waterPaint.area, coverage.water, 2);
 
-  const waterUndercoatBreakdown = distributeLitresByColor(
+  const waterUndercoatBreakdown = getBreakdownWithNames(
     waterUndercoatLitres,
     waterPaint.undercoatColors,
-    packagingSizes
+    undercoatPackaging
   );
-  const waterTopcoatBreakdown = distributeLitresByColor(
+
+  const waterTopcoatBreakdown = getBreakdownWithNames(
     waterTopcoatLitres,
     waterPaint.topcoatColors,
     packagingSizes
   );
 
-  // ARTWORK: multiple color codes, 1 litre each
-  const artworksSummary = artworks.map((art) => {
-    const matched = artworkOptions.find(
-      (a) => a.name.toLowerCase() === art.name.toLowerCase()
-    );
-  
-    const colorCodes = matched?.colorCode
-      ? Array.isArray(matched.colorCode)
-        ? matched.colorCode
-        : [matched.colorCode]
-      : Array.isArray(art.colorCode)
-        ? art.colorCode
-        : [art.colorCode];
-  
-    const colors = colorCodes.map((code) => ({
-      colorCode: code,
-      litres: 1,
-      packaging: calculatePackaging(1, packagingSizes),
-    }));
-  
-    return {
-      id: matched?._id || art.id,
-      name: art.name,
-      colors,
-    };
-  });
-  
-  
-  console.log("totalOilLitres:", totalOilLitres, "thinnerRatio:", thinnerRatio);
+  // ARTWORK
+ const artworksSummary = artworks.map((art) => {
+  const matched = artworkOptions.find(
+    (a) => a.name.toLowerCase() === art.name.toLowerCase()
+  );
+
+  const colors = art.colors?.length
+    ? art.colors.map((color) => ({
+        colorCode: color.colorCode,
+        colorName: color.colorName,
+        litres: color.litres,
+        packaging: calculatePackaging(color.litres, packagingSizes),
+      }))
+    : (Array.isArray(matched?.colorCode) ? matched.colorCode : [matched?.colorCode || ""])
+        .filter(Boolean)
+        .map((code) => ({
+          colorCode: code,
+          colorName: code,
+          litres: 1,
+          packaging: calculatePackaging(1, packagingSizes),
+        }));
+
+  return {
+    id: matched?._id || art.id,
+    name: art.name,
+    colors,
+  };
+});
+
 
   return {
     totalArea,
@@ -190,7 +220,7 @@ export async function getQuotationSummary(input: QuotationInput) {
       topcoatBreakdown: oilTopcoatBreakdown,
       thinner: {
         litres: oilThinnerLitres,
-        packaging: calculatePackaging(oilThinnerLitres, packagingSizes),
+        packaging: calculatePackaging(oilThinnerLitres, thinnerPackaging),
       },
     },
     water: {
@@ -203,5 +233,7 @@ export async function getQuotationSummary(input: QuotationInput) {
     artworks: artworksSummary,
   };
 }
+
+
 
 

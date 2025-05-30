@@ -7,8 +7,8 @@ type Color = {
 
 type Props = {
   label: string;
-  value: string;
-  onChange: (value: string) => void;
+  value: string | number;
+  onChange: (code: string | number, name: string) => void;
 };
 
 export default function ColorCodeSelect({ label, value, onChange }: Props) {
@@ -20,13 +20,12 @@ export default function ColorCodeSelect({ label, value, onChange }: Props) {
       try {
         const res = await fetch("/api/admin/colorcode");
         const data = await res.json();
-  
-        // Make sure it's an array
+
         if (Array.isArray(data)) {
           setColors(data);
         } else {
-          console.error("Expected an array but got:", data);
-          setColors([]); // fallback
+          console.error("Expected array of color codes:", data);
+          setColors([]);
         }
       } catch (error) {
         console.error("Failed to load color codes", error);
@@ -34,16 +33,21 @@ export default function ColorCodeSelect({ label, value, onChange }: Props) {
         setLoading(false);
       }
     };
-  
+
     fetchColors();
   }, []);
-  
+console.log("Dropdown received value:", value);
+
   return (
     <label className="block">
       {label}
       <select
         value={value}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={(e) => {
+          const selectedColor = colors.find(c => String(c.colorCode) === e.target.value);
+onChange(e.target.value, selectedColor?.colorName || "");
+console.log("Selected:", e.target.value, selectedColor?.colorName);
+        }}
         className="border p-1 rounded ml-2"
         disabled={loading}
       >
@@ -57,3 +61,4 @@ export default function ColorCodeSelect({ label, value, onChange }: Props) {
     </label>
   );
 }
+

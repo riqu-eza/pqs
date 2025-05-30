@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React from "react";
 import { PaintSectionInput } from "../../Types/quotation";
 import ColorCodeSelect from "./ColorCodeSelect";
@@ -8,19 +9,43 @@ type Props = {
   onChange: (data: PaintSectionInput) => void;
   allowDouble?: boolean;
 };
-
+const UNDERCOAT_COLORS = {
+  oil: {
+    code: "Universal ",
+    name: "###",
+    percentage: 100,
+  },
+  water: {
+    code: "Superfast",
+    name: "White",
+    percentage: 100,
+  },
+};
 export default function PaintSection({
   title,
   data,
   onChange,
-  // allowDouble = false,
-}: Props) {
+}: // allowDouble = false,
+Props) {
+  const isOilPaint = title.toLowerCase().includes("gloss");
+  const undercoatColor = isOilPaint
+    ? UNDERCOAT_COLORS.oil
+    : UNDERCOAT_COLORS.water;
+  React.useEffect(() => {
+    onChange({
+      ...data,
+      undercoatColors: [undercoatColor],
+    });
+  }, [isOilPaint, data.area]);
+
   const updateColorList = (
     key: "undercoatColors" | "topcoatColors",
     index: number,
-    field: "code" | "percentage",
+    field: "code" | "name" | "percentage",
     value: string | number
   ) => {
+    console.log("Updating:", key, index, field, value);
+
     const newColors = [...data[key]];
     newColors[index] = {
       ...newColors[index],
@@ -30,7 +55,7 @@ export default function PaintSection({
   };
 
   const addColor = (key: "undercoatColors" | "topcoatColors") => {
-    const newColors = [...data[key], { code: "", percentage: 0 }];
+    const newColors = [...data[key], { code: "", name: "", percentage: 0 }];
     onChange({ ...data, [key]: newColors });
   };
 
@@ -55,61 +80,6 @@ export default function PaintSection({
         className="border p-1 rounded w-full"
       />
 
-      {/* {allowDouble && (
-        <label className="flex items-center gap-2">
-          <input
-            type="checkbox"
-            checked={data.doubleArea || false}
-            onChange={(e) =>
-              onChange({ ...data, doubleArea: e.target.checked })
-            }
-          />
-          <span>Double area for oil</span>
-        </label>
-      )} */}
-
-      {/* Undercoat Colors */}
-      <div>
-        <h4 className="font-medium">Undercoat Colors</h4>
-        {data.undercoatColors?.map((color, idx) => (
-          <div key={idx} className="flex gap-2 items-center mb-1">
-            <ColorCodeSelect
-              label=""
-              value={color.code}
-              onChange={(value) =>
-                updateColorList("undercoatColors", idx, "code", value)
-              }
-            />
-            <input
-              type="number"
-              placeholder="%"
-              value={color.percentage}
-              onChange={(e) =>
-                updateColorList(
-                  "undercoatColors",
-                  idx,
-                  "percentage",
-                  e.target.value
-                )
-              }
-              className="border p-1 rounded w-20"
-            />
-            <button
-              onClick={() => removeColor("undercoatColors", idx)}
-              className="text-red-500"
-            >
-              ✕
-            </button>
-          </div>
-        ))}
-        <button
-          onClick={() => addColor("undercoatColors")}
-          className="text-blue-600 text-sm mt-1"
-        >
-          + Add Undercoat Color
-        </button>
-      </div>
-
       {/* Topcoat Colors */}
       <div>
         <h4 className="font-medium mt-2">Topcoat Colors</h4>
@@ -118,10 +88,17 @@ export default function PaintSection({
             <ColorCodeSelect
               label=""
               value={color.code}
-              onChange={(value) =>
-                updateColorList("topcoatColors", idx, "code", value)
-              }
+              onChange={(code, name) => {
+                const newColors = [...data.topcoatColors];
+                newColors[idx] = {
+                  ...newColors[idx],
+                  code,
+                  name,
+                };
+                onChange({ ...data, topcoatColors: newColors });
+              }}
             />
+
             <input
               type="number"
               placeholder="%"

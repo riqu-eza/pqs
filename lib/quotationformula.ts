@@ -136,7 +136,7 @@ export async function getQuotationSummary(input: QuotationInput) {
     (size) => size === 1 || size === 4
   );
   const thinnerPackaging = packagingSizes.filter(
-    (size) => size === 5 || size === 20
+    (size) => size === 1 || size === 5
   );
 
   const getBreakdownWithNames = (

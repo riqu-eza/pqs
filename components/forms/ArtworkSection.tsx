@@ -16,7 +16,10 @@ export default function ArtworkSection({ data, onChange }: Props) {
     updatedColors[index] = {
       ...updatedColors[index],
       ...updates,
-      litres: updates.litres !== undefined ? Number(updates.litres) : updatedColors[index].litres,
+      litres:
+        updates.litres !== undefined
+          ? Number(updates.litres)
+          : updatedColors[index].litres,
     };
     onChange({ ...data, colors: updatedColors });
   };
@@ -24,7 +27,7 @@ export default function ArtworkSection({ data, onChange }: Props) {
   const addColor = () => {
     onChange({
       ...data,
-      colors: [...colors, { colorCode: "", colorName: "", litres: 0 }]
+      colors: [...colors, { colorCode: "", colorName: "", litres: 0 }],
     });
   };
 
@@ -33,6 +36,9 @@ export default function ArtworkSection({ data, onChange }: Props) {
     onChange({ ...data, colors: updatedColors });
   };
 
+  const [isFocusedIndex, setIsFocusedIndex] = React.useState<number | null>(
+    null
+  );
   return (
     <div className="border p-4 rounded shadow space-y-4">
       <h3 className="text-lg font-semibold">Artwork Details</h3>
@@ -52,7 +58,10 @@ export default function ArtworkSection({ data, onChange }: Props) {
       <div>
         <h4 className="font-medium mt-2">Colors</h4>
         {colors.map((color, idx) => (
-          <div key={`${idx}-${color.colorCode}`} className="flex items-center gap-2 mb-2">
+          <div
+            key={`${idx}-${color.colorCode}`}
+            className="flex items-center gap-2 mb-2"
+          >
             <div className="w-1/2">
               <ColorCodeSelect
                 label=""
@@ -60,20 +69,37 @@ export default function ArtworkSection({ data, onChange }: Props) {
                 onChange={(code, name) => {
                   updateColor(idx, {
                     colorCode: String(code),
-                    colorName: name
+                    colorName: name,
                   });
                 }}
               />
             </div>
             <input
               type="number"
+              inputMode="numeric"
+              value={
+                color.litres === 0 && isFocusedIndex === idx ? "" : color.litres
+              }
+              onFocus={() => {
+                setIsFocusedIndex(idx); // You'll need a state like `const [isFocusedIndex, setIsFocusedIndex] = useState(null);`
+                if (color.litres === 0) {
+                  updateColor(idx, { litres: 0 });
+                }
+              }}
+              onBlur={(e) => {
+                if (e.target.value === "") {
+                  updateColor(idx, { litres: 0 });
+                }
+                setIsFocusedIndex(null);
+              }}
+              onChange={(e) => {
+                const val = e.target.value;
+                updateColor(idx, { litres: val === "" ? 0 : Number(val) });
+              }}
               placeholder="Litres"
-              value={color.litres}
-              onChange={(e) => updateColor(idx, { litres: Number(e.target.value) })}
               className="border p-2 rounded w-1/4"
-              min="0"
-              step="0.01"
             />
+
             <button
               type="button"
               onClick={() => removeColor(idx)}
@@ -84,9 +110,9 @@ export default function ArtworkSection({ data, onChange }: Props) {
             </button>
           </div>
         ))}
-        <button 
+        <button
           type="button"
-          onClick={addColor} 
+          onClick={addColor}
           className="text-blue-600 text-sm mt-1"
         >
           + Add Color

@@ -97,21 +97,17 @@ const BasicInfoStep = ({
         required
       />
     </div>
-    <div>
+    {/* <div>
       <label className="block text-sm font-semibold mb-1">
         Total Area (m²):
       </label>
       <input
         type="number"
-        value={formData.totalArea}
-        onChange={(e) =>
-          setFormData({ ...formData, totalArea: Number(e.target.value) })
-        }
-        className="w-full p-2 border rounded-md"
-        required
-        min="0"
+        value={formData.oilPaint.area + formData.waterPaint.area}
+        readOnly
+        className="w-full p-2 border rounded-md bg-gray-100"
       />
-    </div>
+    </div> */}
   </div>
 );
 
@@ -209,7 +205,7 @@ const SummaryStep = ({ formData }: { formData: QuotationInput }) => (
           </p>
           <p>
             <span className="font-medium">Total Area:</span>{" "}
-            {formData.totalArea} m²
+            {formData.oilPaint.area + formData.waterPaint.area} m²
           </p>
         </div>
       </div>
@@ -686,7 +682,8 @@ export default function PaintQuotationForm() {
   const [downloadReady, setDownloadReady] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
   const [emailLoading, setEmailLoading] = useState(false);
-
+  
+// const calculatedTotalArea = formData.oilPaint.area + formData.waterPaint.area;
   const steps = [
     "Basic Info",
     "Gloss Paint",
@@ -706,21 +703,32 @@ export default function PaintQuotationForm() {
   const prevStep = () => setCurrentStep((prev) => Math.max(prev - 1, 0));
 
   const handleSubmit = async () => {
+
+      const calculatedTotalArea = formData.oilPaint.area + formData.waterPaint.area;
+       const updatedFormData = {
+    ...formData,
+    totalArea: calculatedTotalArea
+  };
+
+  if (calculatedTotalArea <= 0) {
+    alert("Please enter area for at least one paint type");
+    return;
+  }
     setLoading(true);
     setQuotationSummary(null);
     setDownloadReady(false);
     setEmailSent(false);
     const token = localStorage.getItem("token");
-    console.log("bodyform sent", formData);
+    console.log("bodyform sent", updatedFormData);
     try {
-      const summary = await getQuotationSummary(formData);
+      const summary = await getQuotationSummary(updatedFormData);
       const res = await fetch("/api/quotation/create", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ formData, summary }),
+        body: JSON.stringify({ formData: updatedFormData, summary }),
       });
 
       if (!res.ok) throw new Error("Failed to save quotation");

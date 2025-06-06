@@ -11,13 +11,13 @@ type Props = {
 };
 const UNDERCOAT_COLORS = {
   oil: {
-    code: "Universal ",
-    name: "###",
+    code: "Universal",
+    name: "Universal",
     percentage: 100,
   },
   water: {
     code: "Superfast",
-    name: "White",
+    name: "Superfast",
     percentage: 100,
   },
 };
@@ -68,6 +68,14 @@ Props) {
     onChange({ ...data, [key]: newColors });
   };
 
+  const [areaInput, setAreaInput] = React.useState<string>(
+    data.area === 0 ? "" : String(data.area)
+  );
+
+  React.useEffect(() => {
+    setAreaInput(data.area === 0 ? "" : String(data.area));
+  }, [data.area]);
+
   return (
     <div className="border p-4 rounded shadow space-y-2">
       <h3 className="text-lg font-semibold">{title}</h3>
@@ -75,8 +83,25 @@ Props) {
       <label>Area (m²):</label>
       <input
         type="number"
-        value={data.area}
-        onChange={(e) => onChange({ ...data, area: Number(e.target.value) })}
+        inputMode="numeric"
+        value={areaInput}
+        onFocus={() => {
+          if (data.area === 0) {
+            setAreaInput("");
+          }
+        }}
+        onBlur={(e) => {
+          if (e.target.value === "") {
+            setAreaInput("");
+            onChange({ ...data, area: 0 });
+          }
+        }}
+        onChange={(e) => {
+          const val = e.target.value;
+          setAreaInput(val);
+          onChange({ ...data, area: val === "" ? 0 : Number(val) });
+        }}
+        placeholder="Enter area"
         className="border p-1 rounded w-full"
       />
 
@@ -101,18 +126,33 @@ Props) {
 
             <input
               type="number"
+              inputMode="numeric"
               placeholder="%"
-              value={color.percentage}
-              onChange={(e) =>
+              value={color.percentage === 0 ? "" : color.percentage}
+              onFocus={() => {
+                if (color.percentage === 0) {
+                  updateColorList("topcoatColors", idx, "percentage", "");
+                }
+              }}
+              onBlur={(e) => {
+                if (e.target.value === "") {
+                  updateColorList("topcoatColors", idx, "percentage", 0); // or null if preferred
+                }
+              }}
+              onChange={(e) => {
+                const value = e.target.value;
                 updateColorList(
                   "topcoatColors",
                   idx,
                   "percentage",
-                  e.target.value
-                )
-              }
+                  value === "" ? "" : Number(value)
+                );
+              }}
+              min="0"
+              max="100"
               className="border p-1 rounded w-20"
             />
+
             <button
               onClick={() => removeColor("topcoatColors", idx)}
               className="text-red-500"

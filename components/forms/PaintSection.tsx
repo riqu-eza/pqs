@@ -102,7 +102,7 @@ export default function PaintSection({
       </div>
 
       {/* Undercoat Colors */}
-      <div className="mt-3 sm:mt-4">
+      {/* <div className="mt-3 sm:mt-4">
         <h4 className="font-medium text-sm sm:text-base mb-2 sm:mb-3">Undercoat Colors</h4>
         <div className="space-y-2 sm:space-y-0 sm:overflow-x-auto">
           <div className="sm:min-w-[500px]">
@@ -144,7 +144,7 @@ export default function PaintSection({
             ))}
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* Topcoat Colors */}
       <div className="mt-3 sm:mt-4">
